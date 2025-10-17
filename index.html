@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>WaifuArchive_zip</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background: linear-gradient(to bottom right, #ffe6f0, #f0f8ff);
+      font-family: 'Segoe UI', sans-serif;
+      color: #444;
+      text-align: center;
+    }
+
+    h1 {
+      margin-top: 40px;
+      font-size: 3em;
+      color: #ff69b4;
+      text-shadow: 1px 1px 3px rgba(255, 105, 180, 0.3);
+    }
+
+    .main-image {
+      max-width: 300px;
+      border-radius: 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      margin: 20px auto;
+      display: block;
+    }
+
+    .description {
+      font-size: 1.1em;
+      max-width: 600px;
+      margin: 20px auto;
+      line-height: 1.6;
+    }
+
+    .button {
+      display: inline-block;
+      padding: 15px 30px;
+      font-size: 1.2em;
+      background-color: #ffb6c1;
+      color: white;
+      border: none;
+      border-radius: 30px;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      text-decoration: none;
+      margin: 30px 0;
+    }
+
+    .button:hover {
+      background-color: #ff8da1;
+    }
+
+    .qr-section {
+      position: relative;
+      z-index: 10;
+      margin-bottom: 40px;
+    }
+
+    .qr-section img {
+      width: 160px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    .qr-section p {
+      font-size: 0.95em;
+      color: #666;
+      max-width: 300px;
+      margin: 10px auto 0;
+    }
+
+    .petal {
+      position: fixed;
+      top: -50px;
+      width: 10px;
+      height: auto;
+      pointer-events: none;
+      z-index: 1;
+      animation-name: fall;
+      animation-timing-function: linear;
+      animation-iteration-count: infinite;
+    }
+
+    @keyframes fall {
+      0% {
+        transform: translateX(100vw) translateY(0) rotate(0deg);
+        opacity: 1;
+      }
+      100% {
+        transform: translateX(-100vw) translateY(100vh) rotate(360deg);
+        opacity: 0;
+      }
+    }
+
+    .hint {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255, 182, 193, 0.95);
+      padding: 14px 24px;
+      border-radius: 20px;
+      font-size: 1em;
+      color: white;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      z-index: 20;
+      display: none;
+    }
+
+    .hint.show {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .hint button {
+      padding: 6px 12px;
+      font-size: 1em;
+      background-color: white;
+      color: #ff69b4;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    .hint button:hover {
+      background-color: #ffe6f0;
+    }
+  </style>
+</head>
+<body>
+  <h1>WaifuArchive_zip</h1>
+
+  <img src="waifu.jpg" alt="Waifu Preview" class="main-image">
+
+  <div class="description">
+    Я создаю NSFW-арты с мужскими и женскими аниме персонажами.
+  </div>
+
+  <a class="button" href="https://t.me/WaifuArchive_zip" target="_blank">Перейти в Telegram</a>
+
+  <div class="qr-section" id="qr-zone">
+    <img src="qr-code.jpg" alt="QR Code">
+    <p>
+      Отсканируй QR-код,<br>
+      чтобы открыть эту страницу на телефоне —<br>
+      удобно, если ты сейчас за ПК.
+    </p>
+  </div>
+
+  <div class="hint" id="hint">
+    Ты можешь регулировать количество лепестков 🌸
+    <div>
+      <button onclick="adjustPetals(1)">+ Больше</button>
+      <button onclick="adjustPetals(-1)">– Меньше</button>
+    </div>
+  </div>
+
+  <script>
+  const petalImages = ['petal1.png', 'petal2.png', 'petal3.png'];
+let petals = [];
+let petalCount = 20;
+let hintShown = false;
+let interactionStart = null;
+const hint = document.getElementById('hint');
+const qrZone = document.getElementById('qr-zone').getBoundingClientRect();
+
+function createPetal() {
+  const img = document.createElement('img');
+  img.src = petalImages[Math.floor(Math.random() * petalImages.length)];
+  img.className = 'petal';
+  img.style.position = 'fixed';
+  img.style.width = '20px';
+  img.style.left = Math.random() * window.innerWidth + 'px';
+  img.style.top = -60 + 'px';
+  img.style.zIndex = 1;
+  img.style.pointerEvents = 'none';
+  document.body.appendChild(img);
+
+  const petal = {
+    el: img,
+    x: parseFloat(img.style.left),
+    y: -60,
+    vx: -0.5 - Math.random(),
+    vy: 1 + Math.random() * 1.5,
+    angle: Math.random() * 360,
+    swing: Math.random() * 0.5,
+    swingPhase: Math.random() * Math.PI * 2
+  };
+
+  petals.push(petal);
+}
+
+function updatePetals() {
+  petals.forEach(p => {
+    p.swingPhase += 0.02;
+    p.x += p.vx + Math.sin(p.swingPhase) * p.swing;
+    p.y += p.vy;
+    p.angle += 1;
+
+    // Avoid QR zone
+    if (
+      p.x > qrZone.left - 60 &&
+      p.x < qrZone.right + 60 &&
+      p.y > qrZone.top - 60 &&
+      p.y < qrZone.bottom + 60
+    ) {
+      p.x = qrZone.right + 80;
+    }
+
+    p.el.style.left = p.x + 'px';
+    p.el.style.top = p.y + 'px';
+    p.el.style.transform = `rotate(${p.angle}deg)`;
+
+    if (p.y > window.innerHeight + 60 || p.x < -100) {
+      p.el.remove();
+      petals = petals.filter(obj => obj !== p);
+      createPetal();
+    }
+  });
+
+  requestAnimationFrame(updatePetals);
+}
+
+function repel(x, y) {
+  petals.forEach(p => {
+    const dx = p.x - x;
+    const dy = p.y - y;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    if (dist < 150) {
+      p.vx += dx * 0.01;
+      p.vy += dy * 0.01;
+    }
+  });
+}
+
+function handleInteraction(e) {
+  const x = e.clientX || (e.touches && e.touches[0].clientX);
+  const y = e.clientY || (e.touches && e.touches[0].clientY);
+  repel(x, y);
+
+  if (!interactionStart) {
+    interactionStart = Date.now();
+  } else if (!hintShown && Date.now() - interactionStart > 1500) {
+    hint.classList.add('show');
+    hintShown = true;
+  }
+}
+
+function adjustPetals(delta) {
+  petalCount = Math.max(0, petalCount + delta);
+  while (petals.length < petalCount) createPetal();
+  while (petals.length > petalCount) {
+    const p = petals.pop();
+    p.el.remove();
+  }
+}
+
+document.addEventListener('mousemove', handleInteraction);
+document.addEventListener('touchmove', handleInteraction);
+
+for (let i = 0; i < petalCount; i++) createPetal();
+updatePetals();
+  </script>
+</body>
+</html>
